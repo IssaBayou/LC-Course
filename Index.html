@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الاعتمادات المستندية — دورة في 30 دقيقة</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #ebebea;
+    --text: #1a1a18;
+    --text2: #6b6b67;
+    --text3: #9b9b97;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --info-bg: #e6f1fb;
+    --info-text: #185fa5;
+    --success-bg: #eaf3de;
+    --success-text: #3b6d11;
+    --warn-bg: #faeeda;
+    --warn-text: #854f0b;
+    --danger-bg: #fcebeb;
+    --danger-text: #a32d2d;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1e1e1c;
+      --bg2: #2a2a28;
+      --bg3: #333330;
+      --text: #e8e6dc;
+      --text2: #9b9994;
+      --text3: #6b6b67;
+      --border: rgba(255,255,255,0.12);
+      --border2: rgba(255,255,255,0.22);
+      --info-bg: #0c447c;
+      --info-text: #b5d4f4;
+      --success-bg: #27500a;
+      --success-text: #c0dd97;
+      --warn-bg: #633806;
+      --warn-text: #fac775;
+      --danger-bg: #791f1f;
+      --danger-text: #f7c1c1;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    line-height: 1.6;
+  }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: var(--text2); margin-bottom: 1.5rem; }
+
+  /* Progress */
+  .progress-bar { background: var(--border); border-radius: 4px; height: 6px; margin-bottom: 1.5rem; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; background: #185fa5; transition: width 0.4s ease; }
+
+  /* Tabs */
+  .tab-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .tab {
+    padding: 5px 13px; border-radius: 20px; border: 0.5px solid var(--border2);
+    font-size: 12px; cursor: pointer; background: var(--bg2); color: var(--text2);
+    transition: all 0.15s; font-family: var(--font);
+  }
+  .tab.active { background: var(--info-bg); color: var(--info-text); border-color: transparent; font-weight: 500; }
+  .tab:hover:not(.active) { background: var(--bg3); }
+
+  /* Module */
+  .module { display: none; }
+  .module.active { display: block; }
+  .mod-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .mod-badge {
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;
+    background: var(--info-bg); color: var(--info-text);
+  }
+  .mod-title { font-size: 17px; font-weight: 500; }
+  .mod-time { font-size: 12px; color: var(--text3); padding-right: 10px; }
+
+  /* Key points */
+  .key-point {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 14px; border-right: 2px solid var(--info-text);
+    margin-bottom: 10px; background: var(--bg2);
+    border-radius: var(--radius) 0 0 var(--radius);
+  }
+  .key-point .icon { font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+  .key-point p { font-size: 13px; line-height: 1.65; }
+  .key-point strong { font-weight: 500; }
+
+  /* Quiz */
+  .quiz-box {
+    border: 0.5px solid var(--border2); border-radius: var(--radius-lg);
+    padding: 16px; margin-top: 1.25rem;
+  }
+  .quiz-q { font-size: 13px; font-weight: 500; margin-bottom: 12px; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 7px; }
+  .quiz-opt {
+    padding: 9px 13px; border-radius: var(--radius); border: 0.5px solid var(--border);
+    font-size: 13px; cursor: pointer; background: var(--bg); color: var(--text2);
+    transition: all 0.15s; text-align: right; font-family: var(--font); line-height: 1.5;
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--info-text); color: var(--info-text); }
+  .quiz-opt.correct { background: var(--success-bg); color: var(--success-text); border-color: transparent; cursor: default; }
+  .quiz-opt.wrong { background: var(--danger-bg); color: var(--danger-text); border-color: transparent; cursor: default; }
+  .quiz-feedback {
+    margin-top: 10px; font-size: 12px; line-height: 1.65;
+    padding: 9px 12px; border-radius: var(--radius); display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: var(--success-bg); color: var(--success-text); }
+  .quiz-feedback.no { background: var(--danger-bg); color: var(--danger-text); }
+
+  /* Flow */
+  .flow-scroll { overflow-x: auto; margin: 1rem 0; }
+  .flow-row { display: flex; align-items: center; gap: 0; min-width: 600px; }
+  .flow-step { flex: 1; text-align: center; }
+  .flow-box {
+    background: var(--bg2); border: 0.5px solid var(--border);
+    border-radius: var(--radius); padding: 8px 6px;
+    font-size: 11px; color: var(--text); line-height: 1.5;
+  }
+  .flow-box.hi { background: var(--info-bg); color: var(--info-text); border-color: transparent; font-weight: 500; }
+  .flow-arrow { color: var(--text3); font-size: 16px; padding: 0 3px; flex-shrink: 0; transform: scaleX(-1); }
+
+  /* Party grid */
+  .party-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 1rem 0; }
+  .party-card {
+    padding: 10px 13px; border-radius: var(--radius);
+    border: 0.5px solid var(--border);
+  }
+  .pname { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+  .prole { font-size: 12px; color: var(--text2); line-height: 1.55; }
+
+  /* Doc grid */
+  .doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin: 1rem 0; }
+  .doc-card { padding: 10px 12px; border-radius: var(--radius); border: 0.5px solid var(--border); background: var(--bg2); }
+  .doc-name { font-size: 12px; font-weight: 500; margin-bottom: 4px; }
+  .doc-desc { font-size: 11px; color: var(--text2); line-height: 1.55; }
+
+  /* Warn box */
+  .warn-box { background: var(--warn-bg); border-radius: var(--radius); padding: 11px 14px; margin: 1rem 0; }
+  .warn-box p { font-size: 12px; color: var(--warn-text); line-height: 1.65; }
+
+  /* Discrepancy list */
+  .disc-intro { font-size: 12px; color: var(--text2); margin-bottom: 0.75rem; }
+  .disc-list { display: flex; flex-direction: column; gap: 7px; margin: 0.5rem 0 1rem; }
+  .disc-item { display: flex; gap: 9px; align-items: flex-start; font-size: 12px; color: var(--text2); line-height: 1.55; }
+  .disc-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--danger-text); flex-shrink: 0; margin-top: 5px; }
+
+  /* Checklist */
+  .cl-title { font-size: 13px; font-weight: 500; margin: 1rem 0 0.5rem; }
+  .checklist { display: flex; flex-direction: column; gap: 7px; margin-bottom: 1rem; }
+  .check-item { display: flex; gap: 9px; align-items: flex-start; font-size: 12px; color: var(--text); line-height: 1.55; cursor: pointer; user-select: none; }
+  .check-box {
+    width: 17px; height: 17px; border-radius: 4px; border: 0.5px solid var(--border2);
+    flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; transition: all 0.15s; background: var(--bg);
+  }
+  .check-box.done { background: var(--success-bg); border-color: transparent; color: var(--success-text); }
+
+  /* Type list */
+  .type-row { display: flex; flex-direction: column; gap: 8px; margin: 1rem 0; }
+  .type-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--radius); border: 0.5px solid var(--border); background: var(--bg2); }
+  .type-tag { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 10px; flex-shrink: 0; margin-top: 2px; white-space: nowrap; }
+  .type-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+  /* Contact Cards styling */
+  .contact-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 1.5rem; }
+  .contact-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
+  .contact-title { font-size: 12px; color: var(--info-text); font-weight: bold; margin-bottom: 4px; }
+  .contact-name { font-size: 15px; font-weight: bold; margin-bottom: 12px; }
+  .contact-meta { font-size: 12px; color: var(--text2); display: flex; flex-direction: column; gap: 6px; }
+  
+  /* Action buttons for email feedback */
+  .feedback-box { background: var(--info-bg); border-radius: var(--radius-lg); padding: 16px; margin-top: 1.5rem; text-align: center; }
+  .feedback-text { font-size: 13px; color: var(--info-text); margin-bottom: 12px; }
+  .btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .action-link { display: inline-block; padding: 8px 14px; border-radius: var(--radius); font-size: 12px; font-weight: 500; text-decoration: none; transition: background 0.2s; }
+  .action-link.primary-mail { background: #185fa5; color: #ffffff; }
+  .action-link.secondary-mail { background: transparent; color: var(--info-text); border: 1px solid var(--info-text); }
+
+  /* Nav */
+  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 0.5px solid var(--border); }
+  .nav-btn {
+    padding: 8px 18px; border-radius: var(--radius); border: 0.5px solid var(--border2);
+    font-size: 13px; cursor: pointer; background: var(--bg); color: var(--text);
+    transition: all 0.15s; font-family: var(--font);
+  }
+  .nav-btn:hover:not(:disabled) { background: var(--bg2); }
+  .nav-btn.primary { background: #185fa5; color: #ffffff; border-color: transparent; }
+  .nav-btn.primary:hover { opacity: 0.9; }
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .counter { font-size: 12px; color: var(--text3); }
+
+  /* Complete */
+  .complete-box { text-align: center; padding: 1.5rem 1rem 0; }
+  .complete-icon { font-size: 42px; margin-bottom: 0.75rem; }
+  .complete-title { font-size: 20px; font-weight: 500; margin-bottom: 0.5rem; }
+  .complete-sub { font-size: 13px; color: var(--text2); line-height: 1.7; max-width: 480px; margin: 0 auto 1rem; }
+
+  /* Print */
+  @media print {
+    .tab-row, .nav-row, .quiz-box, .progress-bar { display: none !important; }
+    .module { display: block !important; page-break-after: always; }
+    body { max-width: 100%; padding: 1rem; }
+  }
+
+  /* Responsive */
+  @media (max-width: 520px) {
+    .party-row, .doc-grid, .contact-container { grid-template-columns: 1fr; }
+    .tab { font-size: 11px; padding: 4px 9px; }
+    body { padding: 1rem 1rem 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<h1>الاعتمادات المستندية — دورة في 30 دقيقة</h1>
+<p class="subtitle">ستة وحدات تعليمية · اختبارات تفاعلية · وفقاً للقواعد الموحدة UCP 600 والممارسات التجارية في ليبيا</p>
+
+<div class="progress-bar"><div class="progress-fill" id="prog" style="width:14.28%"></div></div>
+
+<div class="tab-row">
+  <button class="tab active" onclick="goTo(0)">1. ما هو الاعتماد؟</button>
+  <button class="tab" onclick="goTo(1)">2. الأطراف</button>
+  <button class="tab" onclick="goTo(2)">3. آلية العمل</button>
+  <button class="tab" onclick="goTo(3)">4. المستندات</button>
+  <button class="tab" onclick="goTo(4)">5. حالات عدم التطابق</button>
+  <button class="tab" onclick="goTo(5)">6. نصائح لليبيا</button>
+  <button class="tab" onclick="goTo(6)">7. تواصل معنا</button>
+</div>
+
+<div class="module active" id="m0">
+  <div class="mod-header">
+    <span class="mod-badge">الوحدة 1</span>
+    <span class="mod-title">ما هو الاعتماد المستندي؟</span>
+    <span class="mod-time">~5 دقائق</span>
+  </div>
+  <div class="key-point"><span class="icon">📄</span><p>الاعتماد المستندي هو <strong>تعهد مكتوب صادر عن البنك</strong> بالدفع للمستفيد (البائع) بمبلغ محدد، شريطة أن يقدم البائع المستندات المنصوص عليها في الاعتماد — خلال فترة الصلاحية.</p></div>
+  <div class="key-point"><span class="icon">🛡️</span><p>إنه يعزز الثقة بين المشتري والبائع؛ حيث <strong>يحل المصرف مكان المشتري</strong> بتعهده بالدفع مقابل المستندات المنصوص عليها في الاعتماد.</p></div>
+  <div class="key-point"><span class="icon">🌐</span><p>تخضع الاعتمادات المستندية للأعراف والقواعد الموحدة للاعتمادات المستندية <strong>UCP 600</strong> (منشور اتحاد غرفة التجارة الدولية رقم 600، مراجعة عام 2007).</p></div>
+  <div class="key-point"><span class="icon">🏦</span><p>توفر الخيارات الآمنة مثل الاعتمادات المستندية بأنواعها الـ 10، الدفع مقابل مستندات (CAD)، الدفع المباشر المقيد (SWIFT)، وخطابات الضمان حماية متكاملة لكافة العمليات التجارية حول العالم.</p></div>
+  <div class="quiz-box">
+    <p class="quiz-q">سؤال سريع: لماذا يختار المستورد الليبي استخدام الاعتماد المستندي بدلاً من التحويل البنكي المباشر؟</p>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="answer(this,'wrong',0)">لأن التحويلات المالية المباشرة غير قانونية في ليبيا</button>
+      <button class="quiz-opt" onclick="answer(this,'correct',0)">لأن الاعتماد يمنح المورد الأجنبي ضماناً بنكياً بالدفع، وليس مجرد وعد من المستورد</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong',0)">لأن الاعتمادات المستندية أرخص تكلفة من التحويلات المباشرة</button>
+    </div>
+    <div class="quiz-feedback" id="qf0"></div>
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn" disabled>→ السابق</button>
+    <span class="counter">1 / 7</span>
+    <button class="nav-btn primary" onclick="goTo(1)">التالي ←</button>
+  </div>
+</div>
+
+<div class="module" id="m1">
+  <div class="mod-header">
+    <span class="mod-badge">الوحدة 2</span>
+    <span class="mod-title">الأطراف الرئيسية الأربعة</span>
+    <span class="mod-time">~5 دقائق</span>
+  </div>
+  <div class="party-row">
+    <div class="party-card" style="border-color:var(--info-text)">
+      <div class="pname" style="color:var(--info-text)">🧑‍💼 الآمر بالفتح (المستورد)</div>
+      <div class="prole">المشتري / المستورد (في ليبيا). يطلب من مصرفه فتح الاعتماد، ويتكفل بدفع الرسوم المصرفية وتأمين المقابل المالي.</div>
+    </div>
+    <div class="party-card" style="border-color:var(--success-text)">
+      <div class="pname" style="color:var(--success-text)">✅ المستفيد</div>
+      <div class="prole">البائع / المصدر في الخارج. يستلم قيمة الاعتماد بمجرد تقديم مستندات مطابقة لشروط الاعتماد إلى المصرف.</div>
+    </div>
+    <div class="party-card" style="border-color:var(--warn-text)">
+      <div class="pname" style="color:var(--warn-text)">🏦 المصرف فاتح الإعتماد</div>
+      <div class="prole">مصرف المستورد الليبي. يقوم بفتح الاعتماد ويلتزم بالسداد إذا تطابقت المستندات، وهو الذي يحمل عبء التزام الدفع.</div>
+    </div>
+    <div class="party-card">
+      <div class="pname">🏛️ المصرف المستفيد / المبلغ</div>
+      <div class="prole">مصرف البائع في الخارج. يقوم بإبلاغ البائع بوجود الاعتماد والتحقق من صحته الظاهرية دون التزام بالدفع ما لم يكن معززاً.</div>
+    </div>
+    <div class="party-card" style="grid-column: 1 / -1;">
+      <div class="pname" style="color:var(--danger-text)">🏛️ المصرف المعزز (اختياري)</div>
+      <div class="prole">مصرف (غالباً مراسل عالمي) يضيف التزامه القطعي بالدفع إلى جانب التزام المصرف الفاتح، وذلك لضمان حقوق البائع في حال وجود مخاطر دولة أو تعثر مالي للمصرف الفاتح.</div>
+    </div>
+  </div>
+  <div class="key-point"><span class="icon">⚠️</span><p><strong>مبدأ أساسي (المادة 4 من UCP 600):</strong> الاعتماد المستندي مستقل تماماً عن عقد البيع الأصلي. تتعامل المصارف بالمستندات فقط وليس بالبضائع أو الخدمات. حتى لو كانت البضاعة معيبة، يجب على المصرف الدفع طالما أن المستندات مطابقة.</p></div>
+  <div class="quiz-box">
+    <p class="quiz-q">وصلت البضاعة تالفة، لكن المستندات المقدمة سليمة ومطابقة تماماً لشروط الاعتماد. ماذا يفعل المصرف المصدر؟</p>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="answer(this,'wrong',1)">يرفض الدفع حتى يقوم خبير بمعاينة البضاعة التالفة</button>
+      <button class="quiz-opt" onclick="answer(this,'correct',1)">يدفع للمستفيد — فالاعتماد المستندي مستقل عن حالة البضاعة الفعلية</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong',1)">ينتظر حتى يؤكد المستورد استلامه للبضاعة وقبوله لها</button>
+    </div>
+    <div class="quiz-feedback" id="qf1"></div>
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn" onclick="goTo(0)">→ السابق</button>
+    <span class="counter">2 / 7</span>
+    <button class="nav-btn primary" onclick="goTo(2)">التالي ←</button>
+  </div>
+</div>
+
+<div class="module" id="m2">
+  <div class="mod-header">
+    <span class="mod-badge">الوحدة 3</span>
+    <span class="mod-title">خطوات آلية عمل الاعتماد خطوة بخطوة</span>
+    <span class="mod-time">~5 دقائق</span>
+  </div>
+  <div class="flow-scroll">
+    <div class="flow-row">
+      <div class="flow-step"><div class="flow-box">1. المشتري والبائع<br>يتفقان على الفاتورة المبدئية</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box hi">2. المشتري يقدم طلباً<br>لمصرفه الليبي</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box">3. المصرف المصدر<br>يفتح الاعتماد</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box">4. المصرف المبلغ<br>يخطر البائع</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box">5. البائع يشحن البضاعة<br>ويجهز المستندات</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box hi">6. تقديم<br>المستندات</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box">7. المصارف تفحص<br>(خلال 5 أيام عمل)</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-box">8. الإفراج عن<br>القيمة والمال</div></div>
+    </div>
+  </div>
+  <div class="key-point"><span class="icon">⏱️</span><p>بموجب <strong>المادة 14(ب) من القواعد الموحدة UCP 600</strong>، تمتلك المصارف مهلة أقصاها 5 أيام عمل مصرفية تلي يوم التتقديم لفحص المستندات واتخاذ قرار بالدفع أو الرفض.</p></div>
+  <div class="key-point"><span class="icon">📋</span><p>يجب على البائع تقديم المستندات خلال <strong>فترة صلاحية الاعتماد وبما لا يتجاوز 21 يوماً من تاريخ الشحن</strong> (المادة 14 ج من UCP 600) — أيهما يأتي أولاً.</p></div>
+  <div class="warn-box"><p><strong>ملاحظة خاصة بليبيا:</strong> احرص دائماً على ترك وقت إضافي للإجراءات الداخلية في المصارف الليبية. أضف ما لا يقل عن 7–10 أيام إضافية إلى فترة صلاحية الاعتماد كاحتياط للأمور غير المتوقعة.</p></div>
+  <div class="quiz-box">
+    <p class="quiz-q">ينتهي الاعتماد في 30 يونيو. شحن البائع البضاعة في 20 يونيو. ما هو آخر موعد يجب أن تصل فيه المستندات إلى المصرف؟</p>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="answer(this,'wrong',2)">11 يوليو — أي بعد 21 يوماً بالضبط من تاريخ الشحن</button>
+      <button class="quiz-opt" onclick="answer(this,'correct',2)">30 يونيو — لأن تاريخ انتهاء صلاحية الاعتماد يأتي قبل مهلة الـ 21 يوماً، وبالتالي هو التاريخ الحاكم</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong',2)">بعد 21 يوماً من الشحن بغض النظر عن تاريخ انتهاء صلاحية الاعتماد</button>
+    </div>
+    <div class="quiz-feedback" id="qf2"></div>
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn" onclick="goTo(1)">→ السابق</button>
+    <span class="counter">3 / 7</span>
+    <button class="nav-btn primary" onclick="goTo(3)">التالي ←</button>
+  </div>
+</div>
+
+<div class="module" id="m3">
+  <div class="mod-header">
+    <span class="mod-badge">الوحدة 4</span>
+    <span class="mod-title">المستندات الرئيسية في الاعتماد المستندي</span>
+    <span class="mod-time">~5 دقائق</span>
+  </div>
+  <div class="doc-grid">
+    <div class="doc-card"><div class="doc-name">📄 الفاتورة التجارية</div><div class="doc-desc">يجب أن تطابق وصف البضاعة في الاعتماد تماماً. يصدرها المستفيد، وتكون بنفس عملة الاعتماد.</div></div>
+    <div class="doc-card"><div class="doc-name">🚢 بوليصة الشحن (B/L)</div><div class="doc-desc">إثبات شحن البضاعة. توضح شحن البضائع على متن سفينة محددة. يجب أن تكون "نظيفة" (دون تحفظات على العيوب).</div></div>
+    <div class="doc-card"><div class="doc-name">🛡️ شهادة التأمين</div><div class="doc-desc">مطلوبة في عقود CIF. يجب أن تغطي 110% على الأقل من قيمة الفاتورة، وتصدر في تاريخ الشحن أو قبله.</div></div>
+    <div class="doc-card"><div class="doc-name">📍 شهادة المنشأ</div><div class="doc-desc">تصدر عن الغرفة التجارية في بلد التصدير. وتحدد مكان تصنيع وإنتاج البضائع.</div></div>
+    <div class="doc-card"><div class="doc-name">📦 قائمة التعبئة</div><div class="doc-desc">تصف كيفية تعبئة البضائع — الصناديق، الأوزان، والأبعاد. ويجب أن تتطابق كمياتها مع بوليصة الشحن.</div></div>
+    <div class="doc-card"><div class="doc-name">✅ شهادة التفتيش والمطابقة</div><div class="doc-desc">تصدر عن جهة محايدة (مثل SGS، Intertek). وتؤكد الجودة والكمية قبل الشحن.</div></div>
+  </div>
+  <div class="key-point"><span class="icon">⚠️</span><p><strong>المادة 18 من UCP 600:</strong> يجب أن يتطابق وصف البضائع في الفاتورة التجارية تماماً مع صياغة الاعتماد. أما المستندات الأخرى فيمكنها استخدام وصف عام لا يتعارض مع شروط الاعتماد.</p></div>
+  <div class="quiz-box">
+    <p class="quiz-q">ينص الاعتماد على: "100 طن متري دقيق قمح، معيار أوروبي SF 802/G". بينما ذكرت الفاتورة: "100 طن متري دقيق". هل هذا مقبول؟</p>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="answer(this,'wrong',3)">نعم — كلمة "دقيق" قريبة كفاية وتؤدي الغرض</button>
+      <button class="quiz-opt" onclick="answer(this,'correct',3)">لا — يجب أن تتطابق الفاتورة التجارية تماماً مع وصف البضاعة في الاعتماد. العبارة بالكامل مطلوبة.</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong',3)">لا يهم ذلك إلا إذا اختلف الوصف في قائمة التعبئة أيضاً</button>
+    </div>
+    <div class="quiz-feedback" id="qf3"></div>
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn" onclick="goTo(2)">→ السابق</button>
+    <span class="counter">4 / 7</span>
+    <button class="nav-btn primary" onclick="goTo(4)">التالي ←</button>
+  </div>
+</div>
+
+<div class="module" id="m4">
+  <div class="mod-header">
+    <span class="mod-badge">الوحدة 5</span>
+    <span class="mod-title">حالات عدم التطابق الشائعة — وكيفية تجنبها</span>
+    <span class="mod-time">~5 دقائق</span>
+  </div>
+  <p class="disc-intro">أكثر من 70% من التقديمات الأولى للاعتمادات المستندية حول العالم تحتوي على حالة عدم تطابق واحدة على الأقل. إليك أكثرها شيوعاً:</p>
+  <div class="disc-list">
+    <div class="disc-item"><div class="disc-dot"></div><p>انتهاء صلاحية الاعتماد قبل تقديم المستندات للمصرف</p></div>
+    <div class="disc-item"><div class="disc-dot"></div><p>تاريخ الشحن على البوليصة لاحق لآخر تاريخ شحن مسموح به في الاعتماد</p></div>
+    <div class="disc-item"><div class="disc-dot"></div><p>وصف البضاعة في الفاتورة التجارية لا يطابق شروط الاعتماد بدقة</p></div>
+    <div class="disc-item"><div class="disc-dot"></div><p>اختلاف ميناء الشحن أو ميناء التفريغ عما هو منصوص عليه في الاعتماد</p></div>
+    <div class="disc-item"><div class="disc-dot"></div><p>قيمة التأمين أقل من النسبة المطلوبة (110% من قيمة CIF)</p></div>
+    <div class="disc-item"><div class="disc-dot"></div><p>غياب أحد المستندات المطلوبة في شروط الاعتماد بالكامل</p></div>
+    <div class="disc-item"><div class="disc-dot"></div><p>بوليصة شحن "غير نظيفة" — احتواؤها على ملاحظات من الناقل حول عيوب في التغليف</p></div>
+    <div class="disc-item"><div class="disc-dot"></div><p>اختلاف المبالغ أو الكميات وتعارضها بين المستندات المختلفة</p></div>
+  </div>
+  <p class="cl-title">قائمة مراجعة ما قبل تقديم المستندات — تحقق من كل بند قبل التسليم للمصرف:</p>
+  <div class="checklist">
+    <label class="check-item" onclick="tick(0)"><span class="check-box" id="cb0"></span>تطابق الأوصاف في جميع المستندات مع صياغة الاعتماد تماماً</label>
+    <label class="check-item" onclick="tick(1)"><span class="check-box" id="cb1"></span>تاريخ الشحن يقع في أو قبل آخر تاريخ شحن محدد في الاعتماد</label>
+    <label class="check-item" onclick="tick(2)"><span class="check-box" id="cb2"></span>تقديم المستندات خلال 21 يوماً من تاريخ البوليصة وقبل انتهاء الاعتماد</label>
+    <label class="check-item" onclick="tick(3)"><span class="check-box" id="cb3"></span>التأمين يغطي 110% على الأقل من قيمة فاتورة CIF</label>
+    <label class="check-item" onclick="tick(4)"><span class="check-box" id="cb4"></span>بوليصة الشحن نظيفة وخالية من أي ملاحظات سلبية من الناقل</label>
+    <label class="check-item" onclick="tick(5)"><span class="check-box" id="cb5"></span>إدراج كل مستند مطلوب بموجب الاعتماد دون استثناء</label>
+  </div>
+  <div class="quiz-box">
+    <p class="quiz-q">تلقى المصرف مستندات بها حالات عدم تطابق. ما الإجراء الذي يمكنه اتخاذه بموجب UCP 600؟</p>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="answer(this,'wrong',4)">يجب عليه الدفع على أي حال طالما أن البضاعة قد وصلت بالفعل</button>
+      <button class="quiz-opt" onclick="answer(this,'correct',4)">يمكنه رفض الدفع وإخطار مقدم المستندات في غضون 5 أيام عمل، مع توضيح كافة العيوب</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong',4)">يلتزم بالتواصل تلقائياً مع المستورد للحصول على تنازل وقبول العيوب</button>
+    </div>
+    <div class="quiz-feedback" id="qf4"></div>
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn" onclick="goTo(3)">→ السابق</button>
+    <span class="counter">5 / 7</span>
+    <button class="nav-btn primary" onclick="goTo(5)">التالي ←</button>
+  </div>
+</div>
+
+<div class="module" id="m5">
+  <div class="mod-header">
+    <span class="mod-badge">الوحدة 6</span>
+    <span class="mod-title">نصائح وإرشادات خاصة بالسوق الليبي</span>
+    <span class="mod-time">~5 دقائق</span>
+  </div>
+  <div class="type-row">
+    <div class="type-item">
+      <span class="type-tag" style="background:var(--info-bg);color:var(--info-text)">الصلاحية</span>
+      <p class="type-desc">أضف 10 أيام إضافية على الأقل فوق حاجتك المحسوبة. فالإجراءات المصرفية، العطلات الرسمية، وتأخير الموانئ شائعة في ليبيا، والصلاحية الضيقة تسبب مشاكل دائماً.</p>
+    </div>
+    <div class="type-item">
+      <span class="type-tag" style="background:var(--success-bg);color:var(--success-text)">Incoterms</span>
+      <p class="type-desc">يعتبر شرط التسليم CIF (ميناء الوصول) هو الأكثر شيوعاً في الاستيراد لليبيا. فهو يضع مسؤولية الشحن والتأمين على عاتق البائع، مما يسهل مستندات المستورد.</p>
+    </div>
+    <div class="type-item">
+      <span class="type-tag" style="background:var(--warn-bg);color:var(--warn-text)">التفتيش</span>
+      <p class="type-desc">تأكد دائماً من إدراج بند التفتيش عبر جهة ثالثة محايدة (مثل SGS أو Intertek). وهو متطلب إلزامي من الجهات الرقابية الليبية للسلع الغذائية، والأدوية، ومواد البناء.</p>
+    </div>
+    <div class="type-item">
+      <span class="type-tag" style="background:var(--danger-bg);color:var(--danger-text)">UCP 600</span>
+      <p class="type-desc">اذكر صراحة دائماً: "يخضع هذا الائتمان للأعراف والقواعد الموحدة UCP 600". بدون هذا البند، تخضع النزاعات للقوانين المصرفية المحلية التي قد تختلف كثيراً بين الدول.</p>
+    </div>
+    <div class="type-item">
+      <span class="type-tag" style="background:var(--bg3);color:var(--text2)">الختم الجمركي</span>
+      <p class="type-desc">بالنسبة للحاويات، تضع شركة التفتيش ختماً أو رصاصة جمركية (الخرشم). تأكد من إدراج رقم هذا الختم على بوليصة الشحن، وافحصه عند الوصول لضمان سلامته قبل التخليص.</p>
+    </div>
+    <div class="type-item">
+      <span class="type-tag" style="background:var(--info-bg);color:var(--info-text)">الميناء</span>
+      <p class="type-desc">حدد الميناء الليبي بدقة في الاعتماد. صياغة "أي ميناء ليبي" تسبب اللبس. فميناء طرابلس البحري، بنغازي، ومصراتة تختلف في السعة وإجراءات التخليص.</p>
+    </div>
+  </div>
+  <div class="quiz-box">
+    <p class="quiz-q">لم يذكر اعتمادك المستندي القواعد الموحدة UCP 600. رفض المصرف الأجنبي الدفع بسبب خلاف في التفسير. ما هي المشكلة الأساسية هنا؟</p>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="answer(this,'wrong',5)">قواعد UCP 600 تنطبق تلقائياً بموجب القانون الدولي</button>
+      <button class="quiz-opt" onclick="answer(this,'correct',5)">بدون إشارة صريحة لقواعد UCP 600، لا يوجد إطار دولي متفق عليه — ويجوز لكل مصرف تطبيق قوانينه المحلية الخاصة</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong',5)">المشكلة تكمن في اختيار الميناء، وليس في إطار القواعد الحاكمة</button>
+    </div>
+    <div class="quiz-feedback" id="qf5"></div>
+  </div>
+  <div id="complete-section" style="display:none" class="complete-box">
+    <div class="complete-icon">🎓</div>
+    <div class="complete-title">اكتملت الدورة بنجاح!</div>
+    <p class="complete-sub">لقد قمت بتغطية كافة الوحدات الست بنجاح. انقر على زر "التالي" أدناه للانتقال إلى صفحة المراجع والاتصال المباشر لطلب المساعدة أو تقديم الآراء.</p>
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn" onclick="goTo(4)">→ السابق</button>
+    <span class="counter">6 / 7</span>
+    <button class="nav-btn primary" id="finBtn" onclick="goTo(6)">التالي (بيانات الاتصال) ←</button>
+  </div>
+</div>
+
+<div class="module" id="m6">
+  <div class="mod-header">
+    <span class="mod-badge" style="background:var(--success-bg); color:var(--success-text)">صفحة ختامية</span>
+    <span class="mod-title">المراجع والاتصال وباب الملاحظات</span>
+  </div>
+  
+  <p style="font-size: 13px; color: var(--text2); margin-bottom: 1rem;">يسعدنا تواصلكم لطرح أي استفسارات تخص محتوى الدورة، الاستشارات اللوجستية، أو طلب المراجع الفنية المتعلقة بالاعتمادات المستندية:</p>
+
+  <div class="contact-container">
+    <div class="contact-card">
+      <div class="contact-title">إعداد وتطوير المحتوى</div>
+      <div class="contact-name">عيسى سالم بعيو</div>
+      <div class="contact-meta">
+        <div>📍 طرابلس، ليبيا</div>
+        <div dir="ltr" style="text-align: right;">📱 0918052615</div>
+      </div>
+    </div>
+    
+    <div class="contact-card">
+      <div class="contact-title">المراجعة والتدقيق الفني</div>
+      <div class="contact-name">الربان عمر فرج فنوش</div>
+      <div class="contact-meta">
+        <div>⚓ مستشار بحري وخبير لوجستي</div>
+        <div>📋 مراجعة فنية شاملة للدورة</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feedback-box">
+    <div class="feedback-text">💡 هل لديك تعليق، اقتراح، أو ترغب في الحصول على المراجع الكاملة للدورة؟</div>
+    <div class="btn-group">
+      <a href="mailto:issa.bayou@gmail.com?subject=ملاحظات حول دورة الاعتمادات المستندية" class="action-link primary-mail">📧 إرسال ملاحظات أو تقييم</a>
+      <a href="mailto:issa.bayou@gmail.com?subject=طلب مراجع ومستندات دورة LC" class="action-link secondary-mail">📚 طلب المراجع والمستندات</a>
+    </div>
+  </div>
+
+  <div style="margin-top: 2.5rem; text-align: center; font-size: 11px; color: var(--text3); border-top: 0.5px solid var(--border); padding-top: 1rem;">
+    &copy; جميع الحقوق محفوظة · إعداد: عيسى سالم بعيو ومراجعة الربان عمر فرج فنوش.
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" onclick="goTo(5)">→ السابق</button>
+    <span class="counter">7 / 7</span>
+    <button class="nav-btn primary" id="endBtn" onclick="finishAll()">تمت القراءة ✓</button>
+  </div>
+</div>
+
+<script>
+const feedbacks = [
+  { correct: "صحيح. ينقل الاعتماد المستندي مخاطر الدفع من مجرد وعد المستورد إلى التزام المصرف. المصدرون الأجانب يثقون بالمصارف، وليس بالمشترين المجهولين.", wrong: "ليس تماماً. التحويلات المباشرة قانونية في ليبيا. الميزة الحقيقية للاعتماد هي ضمان المصرف — فهو يزيل مخاطر عدم السداد عن البائع." },
+  { correct: "صحيح تماماً. تنص المادة 5 من UCP 600 على أن المصارف تتعامل بالمستندات فقط وليس بالبضائع. إذا تطابقت المستندات، يكون الدفع إلزامياً بغض النظر عن حالة البضاعة.", wrong: "غير صحيح. لا يمكن للمصرف فحص البضائع. هو يفحص المستندات فقط. إذا كانت المستندات مطابقة، فالدفع إلزامي بغض النظر عن حالة البضاعة." },
+  { correct: "صحيح. القاعدة هي: التقديم خلال 21 يوماً من الشحن وبما لا يتجاوز صلاحية الاعتماد — أيهما أسبق. وبما أن الاعتماد ينتهي في 30 يونيو، فهو التاريخ الملزم.", wrong: "راجع القاعدة: يجب الوفاء بالشرطين معاً (مهلة الـ 21 يوماً وتاريخ انتهاء الصلاحية). التاريخ الأسبق بينهما هو الذي يحكم. وفي هذه الحالة، انتهاء الاعتماد (30 يونيو) يأتي أولاً." },
+  { correct: "صحيح. تنص المادة 18(ج) من UCP 600 على أن وصف البضائع في الفاتورة التجارية يجب أن يطابق تماماً الاعتماد. أما المستندات الأخرى فيجوز فيها استخدام وصف عام.", wrong: "غير صحيح. الفاتورة التجارية هي المستند الوحيد الذي يجب أن يطابق وصف البضاعة فيه نص الاعتماد بدقة تامة. هذا شرط صارم في UCP 600." },
+  { correct: "صحيح. المادة 16 من UCP 600: إذا كانت المستندات غير مطابقة، للمصرف الفاتح الحق المطلق في الرفض بإشعار يرسل خلال 5 أيام عمل يوضح كافة العيوب الجوهرية.", wrong: "غير صحيح. لا يلزم البنك بالدفع في حال وجود خلاف، كما أن طلب التنازل من المستورد هو خيار تفاوضي للمصرف وليس التزاماً قانونياً تلقائياً بموجب الاتفاقية." },
+  { correct: "صحيح. قواعد UCP 600 ليست قانوناً دولياً إلزامياً تلقائياً، بل هي بيئة تعاقدية اختيارية يجب ذكرها صراحة في نص الاعتماد لتصبح ملزمة قانوناً للطرفين.", wrong: "غير صحيح. القواعد لا تنطبق من تلقاء نفسها؛ فعدم إدراجها يترك العقد خاضعاً للقوانين المحلية المتضاربة للدول، وهو ما يقع فيه الكثير من التجار." }
+];
+
+let currentMod = 0;
+
+function goTo(modIndex) {
+  const tabs = document.querySelectorAll('.tab');
+  const modules = document.querySelectorAll('.module');
+  
+  // حماية النطاق
+  if(modIndex < 0 || modIndex >= modules.length) return;
+  
+  modules[currentMod].classList.remove('active');
+  tabs[currentMod].classList.remove('active');
+  
+  currentMod = modIndex;
+  
+  modules[currentMod].classList.add('active');
+  tabs[currentMod].classList.add('active');
+  
+  // تحديث شريط التقدم
+  const progFill = document.getElementById('prog');
+  progFill.style.width = (((currentMod + 1) / modules.length) * 100) + '%';
+  
+  // إظهار زر الإكمال في الوحدة 6
+  if(currentMod === 5) {
+    document.getElementById('complete-section').style.display = 'block';
+    document.getElementById('finBtn').style.display = 'inline-block';
+  }
+}
+
+function answer(btn, status, qIndex) {
+  const box = btn.parentElement;
+  const opts = box.querySelectorAll('.quiz-opt');
+  const feedbackDiv = document.getElementById('qf' + qIndex);
+  
+  opts.forEach(opt => opt.disabled = true);
+  
+  if (status === 'correct') {
+    btn.classList.add('correct');
+    feedbackDiv.className = "quiz-feedback show ok";
+    feedbackDiv.innerText = feedbacks[qIndex].correct;
+  } else {
+    btn.classList.add('wrong');
+    feedbackDiv.className = "quiz-feedback show no";
+    feedbackDiv.innerText = feedbacks[qIndex].wrong;
+    
+    // تلوين الخيار الصحيح للمساعدة والتعلم
+    opts.forEach(opt => {
+      if(opt.getAttribute('onclick').includes('correct')) {
+        opt.classList.add('correct');
+      }
+    });
+  }
+}
+
+function tick(index) {
+  const cb = document.getElementById('cb' + index);
+  cb.classList.toggle('done');
+  if(cb.classList.contains('done')) {
+    cb.innerText = '✓';
+  } else {
+    cb.innerText = '';
+  }
+}
+
+function finishAll() {
+  alert('شكراً لك! تم تسجيل قراءتك للدورة بنجاح. يمكنك الآن مشاركتها أو استخدام ميزة الطباعة (Ctrl+P) لحفظها كملف PDF منظم.');
+}
+</script>
+</body>
+</html>
